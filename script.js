@@ -6,9 +6,10 @@ window.onload = function(){
     var blockSize = 30;
     var ctx;
     var delay = 100;
-    var xCord = 0;
-    var yCord = 0;
     var snakee;
+    var greenApple;
+    var widthinBlock = canvasWidth/blockSize;
+    var heightinBlock = canvasHeight/blockSize;
 
     init();
 
@@ -21,6 +22,7 @@ window.onload = function(){
     
         ctx = canvas.getContext("2d");
         snakee = new Snake([[6,4], [5,4], [4,4]], "right");
+        greenApple = new Apple([getRandomInt(widthinBlock - 1), getRandomInt(heightinBlock -1 )]);
         refreshCanvas();
         
     }
@@ -30,8 +32,18 @@ window.onload = function(){
         ctx.clearRect(0,0, canvas.width, canvas.height);
         ctx.beginPath(); //ne pas oublier cette ligne
         snakee.advance();
-        snakee.draw();
-        setTimeout(refreshCanvas, delay); //appel de la fonction toutes les 1000 ms
+        if(snakee.checkCollision()){
+            //GameOver
+        }else{
+            if(snakee.checkCollisionApple(greenApple.position)){
+                snakee.ateToApple = true;
+                greenApple.position = [getRandomInt(widthinBlock -1 ), getRandomInt(heightinBlock-1)]
+            }
+            snakee.draw();
+            greenApple.draw();
+            setTimeout(refreshCanvas, delay); //appel de la fonction toutes les 1000 ms
+        }
+        
     }
 
     function drawBlock(ctx, position){
@@ -41,12 +53,28 @@ window.onload = function(){
         ctx.fillRect(x,y,blockSize, blockSize);
     }
 
-    
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+      }
+
+    function Apple(position)
+    {
+        this.position = position;
+        this.draw = function()
+        {
+            ctx.save();
+            ctx.fillStyle = "#008000";
+            drawBlock(ctx, this.position);
+            ctx.restore();
+        }
+    }
 
     function Snake(body, direction){
 
         this.body = body;
         this.direction = direction;
+        this.ateToApple = false;
 
         this.draw = function()
         {
@@ -81,7 +109,14 @@ window.onload = function(){
 
             }
             this.body.unshift(nextPosition); //Rajoute la nouvelle position à la première place
-            this.body.pop(); //supprime le dernier élement
+
+            if (snakee.ateToApple)
+            {
+                this.ateToApple = false;
+            } else{
+                this.body.pop(); //supprime le dernier élement si le serpent n'a pas mangé de pomme
+            }
+            
         }
 
         this.setDirection = function(newDirection)
@@ -105,6 +140,57 @@ window.onload = function(){
             if(allowedDirection.indexOf(newDirection) > -1){
                 this.direction = newDirection;
             }
+        }
+
+        this.checkCollision = function(){
+
+            var wallCollision = false;
+            var snakeCollision = false;
+            var head = this.body[0];
+            var restOfBody = this.body.slice(1);
+
+            var snakeX = head[0];
+            var snakeY = head[1];
+
+            var minX = 0;
+            var minY = 0;
+            var maxX = widthinBlock - 1;
+            var maxY = heightinBlock - 1;
+            
+            var wallCollisionX = snakeX < minX || snakeX > maxX;
+            var wallCollisionY = snakeY < minY || snakeY > maxY;
+
+            if(wallCollisionX || wallCollisionY)
+            {
+                wallCollision = true;
+            }
+
+            for(var i = 0; i < restOfBody.length; i++){
+
+                if(snakeX === restOfBody[i][0] && snakeY === restOfBody[i][1]){
+                    snakeCollision = true;
+                }
+            }
+
+            return wallCollision || snakeCollision;
+        }
+
+        this.checkCollisionApple = function(ApplePos){
+            
+            var collisionApple = false;
+            var appleX = ApplePos[0];
+            var appleY = ApplePos[1];
+            var head = this.body[0];
+            var snakeX = head[0];
+            var snakeY = head[1];
+
+            if(snakeX === appleX && snakeY === appleY){
+                collisionApple = true;
+            }
+
+            return collisionApple;
+
+
         }
 
     }
