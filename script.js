@@ -11,6 +11,7 @@ window.onload = function(){
     var widthinBlock = canvasWidth/blockSize;
     var heightinBlock = canvasHeight/blockSize;
     var score;
+    var timeout;
 
     init();
 
@@ -18,7 +19,12 @@ window.onload = function(){
         canvas = document.createElement("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-        canvas.style.border = "1px solid";
+
+        //Style de notre canvas
+        canvas.style.border = "10px solid";
+        canvas.style.margin = "10px";
+        canvas.style.display = "block";
+
         document.body.appendChild(canvas); //permet d'attacher l'element à notre page HTML
     
         ctx = canvas.getContext("2d");
@@ -43,18 +49,27 @@ window.onload = function(){
                 score++; //augmentation du score
                 greenApple.position = [getRandomInt(widthinBlock -1 ), getRandomInt(heightinBlock-1)]
             }
+            drawScore();
             snakee.draw();
             greenApple.draw();
-            drawScore();
-            setTimeout(refreshCanvas, delay); //appel de la fonction toutes les 1000 ms
+            
+            timeout = setTimeout(refreshCanvas, delay); //appel de la fonction toutes les 1000 ms
         }
         
     }
 
     function gameOver(){
         ctx.save();
-        ctx.fillText("Game Over", 5 , 15);
-        ctx.fillText("Si vous souhaitez rejouer, appuyez sur la touche ESPACE", 5, 30);
+        //Style du texte
+        ctx.font = "bold 20px arial";
+        ctx.fillStyle = "gray";
+        ctx.textAlign = "center";
+        ctx.textBaseLine = "middle";
+        var centreX = canvasWidth/2;
+        var centreY = canvasHeight/2;
+
+        ctx.fillText("Game Over", centreX , centreY);
+        ctx.fillText("Si vous souhaitez rejouer, appuyez sur la touche ESPACE", centreX, centreY + 20);
         score = 0;
         ctx.restore();
 
@@ -63,12 +78,22 @@ window.onload = function(){
     function rejouer(){
         snakee = new Snake([[6,4], [5,4], [4,4]], "right");
         greenApple = new Apple([getRandomInt(widthinBlock - 1), getRandomInt(heightinBlock -1 )]);
+        score = 0;
+        clearTimeout(timeout); //eviter le bug du restart
         refreshCanvas();
     }
 
     function drawScore(){
         ctx.save();
-        ctx.fillText("SCORE : " + score.toString(), 5 , canvasHeight - 5);
+        
+        //Style du texte
+        ctx.font = "bold 200px arial";
+        ctx.fillStyle = "gray";
+        ctx.textAlign = "center";
+        ctx.textBaseLine = "middle";
+        var centreX = canvasWidth/2;
+        var centreY = canvasHeight/2;
+        ctx.fillText(score.toString(), centreX , centreY);
         ctx.restore();
     }
 
