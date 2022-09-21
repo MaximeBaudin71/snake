@@ -10,6 +10,7 @@ window.onload = function(){
     var greenApple;
     var widthinBlock = canvasWidth/blockSize;
     var heightinBlock = canvasHeight/blockSize;
+    var score;
 
     init();
 
@@ -23,6 +24,7 @@ window.onload = function(){
         ctx = canvas.getContext("2d");
         snakee = new Snake([[6,4], [5,4], [4,4]], "right");
         greenApple = new Apple([getRandomInt(widthinBlock - 1), getRandomInt(heightinBlock -1 )]);
+        score = 0;
         refreshCanvas();
         
     }
@@ -32,18 +34,42 @@ window.onload = function(){
         ctx.clearRect(0,0, canvas.width, canvas.height);
         ctx.beginPath(); //ne pas oublier cette ligne
         snakee.advance();
-        if(snakee.checkCollision()){
-            //GameOver
+        if(snakee.checkCollision()){ //collision avec un mur ou le corps du serpent
+            //Fin du jeu
+            gameOver();
         }else{
-            if(snakee.checkCollisionApple(greenApple.position)){
+            if(snakee.checkCollisionApple(greenApple.position)){ //si le serpent a mangé une pomme
                 snakee.ateToApple = true;
+                score++; //augmentation du score
                 greenApple.position = [getRandomInt(widthinBlock -1 ), getRandomInt(heightinBlock-1)]
             }
             snakee.draw();
             greenApple.draw();
+            drawScore();
             setTimeout(refreshCanvas, delay); //appel de la fonction toutes les 1000 ms
         }
         
+    }
+
+    function gameOver(){
+        ctx.save();
+        ctx.fillText("Game Over", 5 , 15);
+        ctx.fillText("Si vous souhaitez rejouer, appuyez sur la touche ESPACE", 5, 30);
+        score = 0;
+        ctx.restore();
+
+    }
+
+    function rejouer(){
+        snakee = new Snake([[6,4], [5,4], [4,4]], "right");
+        greenApple = new Apple([getRandomInt(widthinBlock - 1), getRandomInt(heightinBlock -1 )]);
+        refreshCanvas();
+    }
+
+    function drawScore(){
+        ctx.save();
+        ctx.fillText("SCORE : " + score.toString(), 5 , canvasHeight - 5);
+        ctx.restore();
     }
 
     function drawBlock(ctx, position){
@@ -213,6 +239,9 @@ window.onload = function(){
             case "ArrowDown": //bas
                 newPosition = "down";
             break;
+            case " ": //espace
+                rejouer();
+            return;
         }
         snakee.setDirection(newPosition);
     }
