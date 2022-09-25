@@ -12,6 +12,7 @@ window.onload = function(){
     var heightinBlock = canvasHeight/blockSize;
     var score;
     var timeout;
+    var diffulty = "";
 
     init();
 
@@ -28,6 +29,8 @@ window.onload = function(){
         document.body.appendChild(canvas); //permet d'attacher l'element à notre page HTML
     
         ctx = canvas.getContext("2d");
+
+        choixDifficulte();
         snakee = new Snake([[6,4], [5,4], [4,4]], "right");
         greenApple = new Apple([getRandomInt(widthinBlock - 1), getRandomInt(heightinBlock -1 )]);
         score = 0;
@@ -58,6 +61,24 @@ window.onload = function(){
         
     }
 
+    function choixDifficulte(){
+        let signe = prompt("Choix de la difficute : \n f - facile \n m - moyen \n d - difficile");
+
+        switch (signe.toLowerCase()){
+            case "f":
+                delay = 200;
+            break;
+            case "m":
+                delay = 100;
+            break;
+            case "d":
+                delay = 50;
+            break;
+        }
+
+    }
+    
+
     function gameOver(){
         ctx.save();
         //Style du texte
@@ -69,7 +90,8 @@ window.onload = function(){
         var centreY = canvasHeight/2;
 
         ctx.fillText("Game Over", centreX , centreY);
-        ctx.fillText("Si vous souhaitez rejouer, appuyez sur la touche ESPACE", centreX, centreY + 20);
+        ctx.fillText("Votre score : " + score, centreX , centreY+20);
+        ctx.fillText("Si vous souhaitez rejouer, appuyez sur la touche ESPACE", centreX, centreY + 40);
         score = 0;
         ctx.restore();
 
@@ -265,6 +287,7 @@ window.onload = function(){
                 newPosition = "down";
             break;
             case " ": //espace
+                choixDifficulte();
                 rejouer();
             return;
         }
